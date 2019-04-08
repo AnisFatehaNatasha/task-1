@@ -1,62 +1,59 @@
-// A Java program for a Server 
-import java.net.*; 
-import java.io.*; 
+import java.net.*;
+import java.io.*;
+import java.lang.*;
+import java.util.*;
+class Server{
+
+    public static void main (String[] args)
+    {
+      try{      
+      //Defining/opening connection
+      ServerSocket srvr = new ServerSocket(9002);
+      Socket skt = srvr.accept();
+      
+      InputStreamReader bf = new InputStreamReader(skt.getInputStream());
+      BufferedReader in= new BufferedReader(bf);
+      PrintWriter out = new PrintWriter(skt.getOutputStream(),true);
+      Scanner s=new Scanner(System.in);
+      
+      Thread send=new Thread(new Runnable(){
+      String msg;
+      @Override
+      public void run(){
+            while(true){
   
-public class server 
-{ 
-    //initialize socket and input stream 
-    private Socket          socket   = null; 
-    private ServerSocket    server   = null; 
-    private DataInputStream in       =  null; 
-  
-    // constructor with port 
-    public server(int port) 
-    { 
-        // starts server and waits for a connection 
-        try
-        { 
-            server = new ServerSocket(port); 
-            System.out.println("Server started"); 
-  
-            System.out.println("Waiting for a client ..."); 
-  
-            socket = server.accept(); 
-            System.out.println("Client accepted"); 
-  
-            // takes input from the client socket 
-            in = new DataInputStream( 
-                new BufferedInputStream(socket.getInputStream())); 
-  
-            String line = ""; 
-  
-            // reads message from client until "Over" is sent 
-            while (!line.equals("Over")) 
-            { 
-                try
-                { 
-                    line = in.readUTF(); 
-                    System.out.println(line); 
-  
-                } 
-                catch(IOException i) 
-                { 
-                    System.out.println(i); 
-                } 
-            } 
-            System.out.println("Closing connection"); 
-  
-            // close connection 
-            socket.close(); 
-            in.close(); 
-        } 
-        catch(IOException i) 
-        { 
-            System.out.println(i); 
-        } 
-    } 
-  
-    public static void main(String args[]) 
-    { 
-        server server = new server(5000); 
-    } 
-} 
+                  msg=s.nextLine();
+                  out.print(msg);
+                  out.flush();
+            }
+      }
+      });
+      send.start();
+      
+      Thread receive=new Thread(new Runnable(){
+      String msg;
+      @Override
+      public void run(){
+            while(true){
+                  try{
+                        msg=in.readLine();
+                  }catch(IOException e){
+                        e.printStackTrace();
+                  }
+                  System.out.print("Client: "+msg);
+            }
+      }
+      });
+      receive.start();
+            
+      
+      
+      //closing connection
+      //out.close();
+      //skt.close();
+      //srvr.close();
+      }catch (IOException e){
+            e.printStackTrace();
+      }
+    }
+}
